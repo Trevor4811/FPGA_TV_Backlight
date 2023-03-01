@@ -1,1 +1,3 @@
-Readme file
+average_screen.ipynb takes in Sample6.png as an input. Then, it calculates the most common and second most common colors to appear in the image. It will then output these two colors as two 200x200 pixel images. 
+It does this by taking in the image and creating individual arrays for the r, g, and b values. It then creates another array for each color that is 256 integers long. This array is filled with how many times a certain color value appears (every time r=112 is seen, +1 to the 112th position in the r array)
+Once that array is filled, it is know how many times every value for r, g, and b appear in the image. These values are called and combined to create the most common colors.
