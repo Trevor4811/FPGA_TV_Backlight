@@ -29,6 +29,8 @@ Also started to outline an HLS function in edge_conv.cpp and edge_conv.h to appl
 
 ### Mode 2 - matching the most common color in an image
 #### *Summary:*
+This mode is a color analysis mode that analyzes the r, g, and b values of every pixel in a .png file. It then determines the two most common colors that appear within the image.
+The two most common colors are determined by figuring out what the two most common r, g, and b values are. This is done with numpy arrays that keep track of every value that appears. The most common two are then selected and combined to create the respective most and second most common colors.
 
 #### *Project Update 1:*
 
