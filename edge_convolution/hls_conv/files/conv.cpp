@@ -3,9 +3,7 @@
 // 5 original with smaller data types
 void conv(
 	pixel_data_t *result,
-	pixel_data_t input_pixels[CONV_HEIGHT][CONV_WIDTH],
-	pixel_data_t conv_array[CONV_HEIGHT][CONV_WIDTH],
-	mat_sum_t matrix_sum
+	pixel_data_t input_pixels[CONV_HEIGHT][CONV_WIDTH]
 	)
 {
 	int x;
@@ -20,10 +18,10 @@ Multiply_Sum_Loop:
 		for (x = 0; x < CONV_WIDTH; x++)
 		{
 //#pragma HLS UNROLL
-			acc += input_pixels[x][y] * conv_array[x][y];
+			acc += input_pixels[x][y] * CONV_ARRAY[x][y];
 		}
 	}
 
 Division:
-	*result = acc/matrix_sum;
+	*result = acc/MATRIX_SUM;
 }
