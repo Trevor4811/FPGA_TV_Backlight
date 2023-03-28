@@ -21,11 +21,23 @@ Matrix convolution is a common method for applying effects to images including s
 [Python Implementation](./edge_convolution/python_impl/single_image_convolution.ipynb)\
 The Python implementation for this mode is fully designed. This code takes in an image and a convolution matrix. Then runs the image through a function to create seperate arrays for each of the edges in a uniform shape. The the convolution matrix is applied to each array of edges. This works by applying the matrix convolution on the edge spaced for the set number of LEDs along that edge. Then the RGB outputs for each LED are stored. It took 0.0986 sec to run this process on the test image on the ZYNQ board. This code can be run by running the entire Jupyter Notebook on the PYNQ board or a computer with all the neccessary import dependencies.
 
+#### *Project Update 2:*
 [HLS Convolution](./edge_convolution/hls_conv/files)\
-Designed a basic convolution HLS function in conv.cpp and conv.h to apply the convolution matrix to a given input. Have not yet verified the output of the function. The next step will be to compile this function into a bitstream so the functionallity may be used in python to compare doing the convolution on the FPGS vs the PL. 
+Designed a convolution HLS function in conv.cpp and conv.h to apply the convolution matrix to a given flattened uint8 image input. This uses the master AXI input for an array input into from the ps into the pl rather than stream because I am not running convolution every time that a new pixel value is added. Then the result is put in both the first value of the first array element as well as the result variable. I did both methods as a troubleshooting step but now both methods work. conv_testbench.cpp is a working testbench that tests a single input in the convolution function and compares it to the expected output of the software version. After this I compiled the script into IP for use in Vivado.
 
-Also started to outline an HLS function in edge_conv.cpp and edge_conv.h to apply the convolution across the entire edge of the image in the FPGA.
+I used the compiled HLS IP in vivado with connection automation and a couple manual steps to create a block diagram of all the connections using the master AXI interface for array transfer. I then compiled this function into a bitstream so the functionallity may be used in python to compare doing the convolution on the FPGA vs the PL. The output files can be found in the [overlay](./edge_convolution/hls_conv/files/overlay/) folder.
 
+To run this add the overlay files into a folder at the following location on the PYNQ Z2 board `'/home/xilinx/pynq/overlays/conv/'`. Then add the python [jupyter notebook](./edge_convolution/hls_conv/single_image_convolution_fpga.ipynb) and [sample image](./edge_convolution/hls_conv/sample.jpg) to the PYNQ board and run it. There is one section in the jupyter notebook that has a test script for the convolution to test the single convolution used in the testbench. Then there is a script to run both the sw and hw convolution versions on an entire image and compare them both in time and the result values. The edge color results are saved as images in [results](./edge_convolution/hls_conv/results/) and the hw and sw version results can be visually compared. 
+
+**Issues:** 
+
+There are multiple issues with the current implementation. First the hardware implementation takes ~1.37 Sec to run on an entire image while the software version only takes ~0.093 Sec. Most of this inefficiency comes from the data transfer as when the vitis ip was compiled it said it should take less than 1 us to run on a single convolution. Currently python is looping through the image array and copying a single element at a time into the allocated buffer which is very inefficient and likely has a lot of room for increased speed. 
+
+Another issue is that the hw and sw implementations are producing slightly different results even though the testbench produced an identical result on the one example given. It is unclear what is causing this but may be the way the division is being implemented in hardware. 
+
+**Next Steps:**
+
+My next steps will be to look further into and solve these issues. A fully implemented version of our project would accept images through HDMI directly into the PL and this data transfer issue would be less of a problem so it may be worth simulating this by storing the image array directly on the PL and seeing the speed increase. Another option is to make the python data transfer portion faster using libraries instead of directly in python. I will also look further into the issue of the slightly different results and possibly look at different options for the division if that is the issue. 
 
 ### Mode 2 - matching the most common color in an image
 #### *Summary:*

@@ -1,7 +1,6 @@
 #include <iostream>
-//#include "conv.h"
-//#include "conv.cpp"
 #include <ap_int.h>
+
 using namespace std;
 
 typedef ap_uint<8> 	pixel_data_t;
