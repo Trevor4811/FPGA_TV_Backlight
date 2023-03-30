@@ -23,21 +23,23 @@ The Python implementation for this mode is fully designed. This code takes in an
 
 #### *Project Update 2:*
 [HLS Convolution](./edge_convolution/hls_conv/files)\
-Designed a convolution HLS function in conv.cpp and conv.h to apply the convolution matrix to a given flattened uint8 image input. This uses the master AXI input for an array input into from the ps into the pl rather than stream because I am not running convolution every time that a new pixel value is added. Then the result is put in both the first value of the first array element as well as the result variable. I did both methods as a troubleshooting step but now both methods work. conv_testbench.cpp is a working testbench that tests a single input in the convolution function and compares it to the expected output of the software version. After this I compiled the script into IP for use in Vivado.
+Designed a convolution HLS function in conv.cpp and conv.h to apply the convolution matrix to a given flattened uint8 image input. This uses the master AXI input for an array input into from the ps into the pl rather than stream because I am not running convolution every time that a new pixel value is added. Then the result is put in both the first value of the first array element as well as the result variable. I did both methods as a troubleshooting step but neither work correctly. conv_testbench.cpp is a working testbench that tests a single input in the convolution function and compares it to the expected output of the software version. After this I compiled the script into IP for use in Vivado.
 
-I used the compiled HLS IP in vivado with connection automation and a couple manual steps to create a block diagram of all the connections using the master AXI interface for array transfer. I then compiled this function into a bitstream so the functionallity may be used in python to compare doing the convolution on the FPGA vs the PL. The output files can be found in the [overlay](./edge_convolution/hls_conv/files/overlay/) folder.
+I used the compiled HLS IP in vivado with connection automation and a couple manual steps to create a block diagram of all the connections using the master AXI interface for array transfer as seen below. I followed this [tutorial](https://discuss.pynq.io/t/tutorial-axi-master-interfaces-with-hls-ip/4032) for the block diagram connections. I then compiled this function into a bitstream so the functionallity may be used in python to compare doing the convolution on the FPGA vs the PL. The output files can be found in the [overlay](./edge_convolution/hls_conv/files/overlay/) folder.
 
-To run this add the overlay files into a folder at the following location on the PYNQ Z2 board `'/home/xilinx/pynq/overlays/conv/'`. Then add the python [jupyter notebook](./edge_convolution/hls_conv/single_image_convolution_fpga.ipynb) and [sample image](./edge_convolution/hls_conv/sample.jpg) to the PYNQ board and run it. There is one section in the jupyter notebook that has a test script for the convolution to test the single convolution used in the testbench. Then there is a script to run both the sw and hw convolution versions on an entire image and compare them both in time and the result values. The edge color results are saved as images in [results](./edge_convolution/hls_conv/results/) and the hw and sw version results can be visually compared. 
+![block diagram](./edge_convolution/hls_conv/block_diagram.png)
+
+To run this add the overlay files into a folder at the following location on the PYNQ Z2 board `'/home/xilinx/pynq/overlays/conv/'`. Then add the python [jupyter notebook](./edge_convolution/hls_conv/single_image_convolution_fpga.ipynb) and [sample image](./edge_convolution/hls_conv/sample.jpg) to the PYNQ board and run it. There is one section in the jupyter notebook that has a test script for the convolution to test the single convolution used in the testbench. Then there is a script to run both the sw and hw convolution versions on an entire image and compare them both in time and the result values. The edge color results are saved as images in [results](./edge_convolution/hls_conv/results/) and the hw and sw version results can be visually compared. The HW version is no working as the first element in the array is never changed to the result by the hw convolution even though it says it is done.
 
 **Issues:** 
 
 There are multiple issues with the current implementation. First the hardware implementation takes ~1.37 Sec to run on an entire image while the software version only takes ~0.093 Sec. Most of this inefficiency comes from the data transfer as when the vitis ip was compiled it said it should take less than 1 us to run on a single convolution. Currently python is looping through the image array and copying a single element at a time into the allocated buffer which is very inefficient and likely has a lot of room for increased speed. 
 
-Another issue is that the hw and sw implementations are producing slightly different results even though the testbench produced an identical result on the one example given. It is unclear what is causing this but may be the way the division is being implemented in hardware. 
+Another issue is that the hw implementations is not working even though the testbench produced a correct result. This makes it seem like the issue lies in the data transfer side of things. It is unclear which side of the data transfer is not working and why. 
 
 **Next Steps:**
 
-My next steps will be to look further into and solve these issues. A fully implemented version of our project would accept images through HDMI directly into the PL and this data transfer issue would be less of a problem so it may be worth simulating this by storing the image array directly on the PL and seeing the speed increase. Another option is to make the python data transfer portion faster using libraries instead of directly in python. I will also look further into the issue of the slightly different results and possibly look at different options for the division if that is the issue. 
+My next steps will be to look further into and solve these issues. A fully implemented version of our project would accept images through HDMI directly into the PL and this data transfer issue would be less of a problem so it may be worth simulating this by storing the image array directly on the PL and seeing the speed increase. This would also mean that the image does not need to be transferred from the ps to the pl at all, and this may be a reasonable next step. Another option is to make the python data transfer portion faster using libraries instead of directly in python but the master axi interface is not working currently so it is unclear if this is worth it. 
 
 ### Mode 2 - matching the most common color in an image
 #### *Summary:*
@@ -50,6 +52,24 @@ average_screen.ipynb takes in Sample6.png as an input. Then, it calculates the m
 
 It does this by taking in the image and creating individual arrays for the r, g, and b values. It then creates another array for each color that is 256 integers long. This array is filled with how many times a certain color value appears (every time r=112 is seen, +1 to the 112th position in the r array)
 Once that array is filled, it is known how many times every value for r, g, and b appear in the image. These values are called and combined to create the most common colors. This code can be run by running the entire Jupyter Notebook on the PYNQ board or a computer with all the neccessary import dependencies.
+
+#### *Project Update 2:*
+[HLS Screen Average](./screen_average/)\
+Designed a screen averaging HLS function in screen_average.cpp and screen_average.h to find the most common color value in an inputted array. Uses the master AXI input for the array input from ps into pl, however it will be switched to streaming for reasons discussed in the issues portion. The script was compiled into IP to be used in Vivado.
+
+The compilied HLS IP was added to Vivado with connection automation and manual steps to create the block diagram. The block diagram has all of the connections for the master AXI interface. This was then compiled into a bitstream so that it can be used in python to be run in the Jupyter notebooks and ultimately compared to the PL time. The output files can be found in the [overlay](./screen_average/overlay/) folder.
+
+To run this add the overlay files into a folder at the following location on the PYNQ Z2 board `'/home/xilinx/pynq/overlays/screen_average/'`. Then add the python [jupyter notebook](./screen_average/average_screen_hardware.ipynb) and [sample image](./screen_average/Sample6.png) to the PYNQ board and run all of the cells.
+
+
+**Issues:** 
+
+The issue with the current implementation is that there is some sort of issue when attempting to get the result. The function can take in an array and correctly identify the most common value, but when the result is called it is always 0 or seg faults. We spent a lot of time troubleshooting this with a TA to no gain. Because of this, we will be pivoting to a streaming design instead of using the master AXI method. This in-progress implementation can be found in the [hls_impl2](./screen_average/hls_impl2) folder.
+
+
+**Next Steps:**
+
+My next steps will be to complete implementation of the streaming method and test. Once the streaming method is complete, the notebook can be edited to run three times, for the R, G, and B arrays. 
 
 
 --------------------------------
