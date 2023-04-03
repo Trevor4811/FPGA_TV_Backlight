@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Xilinx, Inc.
+ * Copyright 2022 Xilinx, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,28 +23,27 @@ void example(hls::stream<ap_axis<32,2,5,6> > &A, hls::stream<ap_axis<32,2,5,6> >
 
 int main()
 {
-	int y = 5;
-  int i[11]={1 ,
+  hls::stream<ap_axis<32,2,5,6> > A, B;
+  ap_axis<32,2,5,6> tmp1, tmp2;
+  int inputs[] = {0,
   		242 ,
   		245 ,
   		246 ,
   		249 ,
-  		250 ,
-  		250 ,
-  		250 ,
+  		100 ,
+  		100 ,
+  		100 ,
   		240 ,
   		249};
-  int z[11] = {0};
-  hls::stream<ap_axis<32,2,5,6>> A, B;
-  ap_axis<32,2,5,6> tmp1, tmp2;
+  int expected[] = {1, 0, 1, 1, 1, 0, 0, 1};
+  int result = 100;
 
  for(int j=0;j<11;j++)
 {
-  tmp1.data = y;
+  tmp1.data = inputs[j];
   tmp1.keep = 1;
   tmp1.strb = 1;
   tmp1.user = 1;
-
  if(j==10)
 {
   tmp1.last = 1;
@@ -58,22 +57,21 @@ else
   tmp1.dest = 1;
 
   A.write(tmp1);
-  example(A,B);
-  B.read(tmp2);
-  z[j] = tmp2.data.to_int();
-
-  cout << tmp2.data.to_int() << endl;
-
-//  if (tmp2.data.to_int() != 105)
-//  {
-//    cout << "ERROR: results mismatch" << endl;
-//  }
 
 }
 
- 	for(int x=0; x < 11; x++) {
- 		  cout << z[x] << endl;
- 	}
-    cout << "Success: results match" << endl;
-    return 0;
+ example(A,B);
+
+	  B.read(tmp2);
+	  cout << tmp2.data.to_int() << endl;
+
+	  if (tmp2.data.to_int() != result)
+	  {
+	    cout << "ERROR: results mismatch" << endl;
+	    return 1;
+	  }
+	    cout << "Success: results match" << endl;
+
+  return 0;
+
 }
