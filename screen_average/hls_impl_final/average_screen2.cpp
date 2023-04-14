@@ -28,20 +28,18 @@ void example(hls::stream< ap_axis<32,2,5,6> > &A,
 			color255[num] += 1;
 		}
 
-		Find_Max_Loop:
+
+		if(tmp.last) {
+			Find_Max_Loop:
 			for(i = 0; i < 256; i++) {
 				if(color255[i] > color255[max]) {
 					max = i;
 				}
 			}
-
-     if(tmp.last)
-     {
-    	 tmp.data = max;
-    	 B.write(tmp);
-         break;
-     }
+			tmp.data = max;
+			B.write(tmp);
+			break;
+		}
     }
-
 
 }
