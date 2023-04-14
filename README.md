@@ -73,10 +73,10 @@ My next steps will be to complete implementation of the streaming method and tes
 
 
 #### *Final Report:*
-[Jupyter Notebook for software implementation](./screen_average/average_screen.ipynb)
-[Jupyter Notebook for hardware implementation](./screen_average/average_screen_hardware3.ipynb)
-[Overlay for hardware implementation](./screen_average/overlay/)
-[C++ code for hardware implementation](./screen_average/hls_impl_final/)
+[Jupyter Notebook for software implementation](./screen_average/average_screen.ipynb)\
+[Jupyter Notebook for hardware implementation](./screen_average/average_screen_hardware3.ipynb)\
+[Overlay for hardware implementation](./screen_average/overlay/)\
+[C++ code for hardware implementation](./screen_average/hls_impl_final/)\
 
 --------------------------------
 
