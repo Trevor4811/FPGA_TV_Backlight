@@ -27,37 +27,11 @@ To run this add the [overlay](./edge_convolution/hls_conv/files/overlay/) files 
 This mode is a color analysis mode that analyzes the r, g, and b values of every pixel in a .png file. It then determines the two most common colors that appear within the image.
 The two most common colors are determined by figuring out what the two most common r, g, and b values are. This is done with numpy arrays that keep track of every value that appears. The most common two are then selected and combined to create the respective most and second most common colors.
 
-#### *Project Update 1:*
+#### *Usage Instructions:*
+The final hardware version is updated in the [Screen Average](./screen_average/) folder. This contains all of the necessary files to run it on the Pynq-Z2 board as well as all of the source files to rebuild the project from scratch.
 
-average_screen.ipynb takes in Sample6.png as an input. Then, it calculates the most common and second most common colors to appear in the image. It will then output these two colors as two 200x200 pixel images. 
-
-It does this by taking in the image and creating individual arrays for the r, g, and b values. It then creates another array for each color that is 256 integers long. This array is filled with how many times a certain color value appears (every time r=112 is seen, +1 to the 112th position in the r array)
-Once that array is filled, it is known how many times every value for r, g, and b appear in the image. These values are called and combined to create the most common colors. This code can be run by running the entire Jupyter Notebook on the PYNQ board or a computer with all the neccessary import dependencies.
-
-#### *Project Update 2:*
-[HLS Screen Average](./screen_average/)\
-Designed a screen averaging HLS function in screen_average.cpp and screen_average.h to find the most common color value in an inputted array. Uses the master AXI input for the array input from ps into pl, however it will be switched to streaming for reasons discussed in the issues portion. The script was compiled into IP to be used in Vivado.
-
-The compilied HLS IP was added to Vivado with connection automation and manual steps to create the block diagram. The block diagram has all of the connections for the master AXI interface. This was then compiled into a bitstream so that it can be used in python to be run in the Jupyter notebooks and ultimately compared to the PL time. The output files can be found in the [overlay](./screen_average/overlay/) folder.
-
-To run this add the overlay files into a folder at the following location on the PYNQ Z2 board `'/home/xilinx/pynq/overlays/screen_average/'`. Then add the python [jupyter notebook](./screen_average/average_screen_hardware.ipynb) and [sample image](./screen_average/Sample6.png) to the PYNQ board and run all of the cells.
-
-
-**Issues:** 
-
-The issue with the current implementation is that there is some sort of issue when attempting to get the result. The function can take in an array and correctly identify the most common value, but when the result is called it is always 0 or seg faults. We spent a lot of time troubleshooting this with a TA to no gain. Because of this, we will be pivoting to a streaming design instead of using the master AXI method. This in-progress implementation can be found in the [hls_impl2](./screen_average/hls_impl2) folder.
-
-
-**Next Steps:**
-
-My next steps will be to complete implementation of the streaming method and test. Once the streaming method is complete, the notebook can be edited to run three times, for the R, G, and B arrays. 
-
-
-#### *Final Report:*
-[Jupyter Notebook for software implementation](./screen_average/average_screen.ipynb)\
-[Jupyter Notebook for hardware implementation](./screen_average/average_screen_hardware3.ipynb)\
-[Overlay for hardware implementation](./screen_average/overlay/)\
-[C++ code for hardware implementation](./screen_average/hls_impl_final/)
+To run the hardware implementation add the [overlay](./screen_average/overlay_final/) files into a folder at the following location on the PYNQ Z2 board `'/home/xilinx/pynq/overlays/average_screen2/'`. Then add the python [jupyter notebook](./screen_average/average_screen_hardware3.ipynb) and [sample image](./screen_average/Sample6.png) to the PYNQ board and run it. The C++ code for this implementation is contained [here](./screen_average/hls_impl_final/)\
+To run the software implemenation, use the [Jupyter Notebook](./screen_average/average_screen.ipynb)
 
 --------------------------------
 
